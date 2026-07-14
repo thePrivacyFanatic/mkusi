@@ -1,0 +1,77 @@
+#!/bin/bash
+set -euo pipefail
+
+readonly SCRIPT_NAME="$(basename "$0")"
+
+usage() {
+  cat <<USAGE
+Usage: $SCRIPT_NAME [-hc] output_filename
+  -h         Displays this help
+  -c         Cleans the temp directory before running
+USAGE
+}
+
+while getopts "hc" opt; do
+  case $opt in
+  c) clean=true ;;
+  h)
+    usage
+    exit 0
+    ;;
+  esac
+done
+if [ $(($# - $OPTIND)) -lt 0 ]; then
+  echo "too few arguments"
+  usage
+  exit 1
+fi
+
+output_filename=${@:$OPTIND:1}
+
+if [ $UID != 0 ]; then
+  clean=false
+
+  echo "setting up:"
+
+  if command -v unshare >/dev/null 2>&1; then
+    echo "unshare avalable"
+  else
+    echo "unshare unavailable, install util-linux"
+    exit 1
+  fi
+
+  if [ -d "temp" ] && $clean; then
+    echo "removing temp dir"
+    rm -r "temp"
+  fi
+
+  if ! [ -d "temp" ]; then
+    echo "creating temp dir"
+    mkdir "temp"
+  fi
+
+  if [ -d "root" ]; then
+    echo "removing leftover root"
+    rm -rf root
+  fi
+  echo "creating empty root dir"
+  mkdir "root"
+
+  echo "entering unshare"
+  unshare -r "$0" "$output_filename"
+else
+  width=$(tput cols 2>/dev/null || echo 80)
+
+  for file in *; do
+    if [ -f $file ] && [ -x $file ] && [ "$(basename "$file")" != "${SCRIPT_NAME}" ]; then
+      printf '%*s\n' "$width" | tr ' ' '-'
+      echo "executing $file:"
+      "./$file"
+    fi
+  done
+
+  printf '%*s\n' "$width" | tr ' ' '-'
+
+  echo "creating squashfs"
+  mksquashfs "root" $output_filename -quiet -noappend
+fi

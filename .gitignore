@@ -1,0 +1,14 @@
+# build files
+sqtoim
+sqinit
+# pkgbuild generated 
+mkusi/
+pkg/
+src/
+mkusi*.tar.zst
+# build artifacts from running in example
+example/*/root
+example/*/temp
+example/*/initcpio
+example/*/*.sqsh
+example/*/*.efi

@@ -1,0 +1,39 @@
+#!/bin/bash
+set -euo pipefail
+
+readonly SCRIPT_NAME="$(basename "$0")"
+
+usage() {
+  cat <<USAGE
+Usage: $SCRIPT_NAME [-h] kernel squashfs_path output_filename
+   -h                        Displays this help
+USAGE
+}
+
+while getopts "h" opt; do
+  case "$opt" in
+  h)
+    usage
+    exit 0
+    ;;
+  esac
+done
+
+if [ $(($# - $OPTIND)) -lt 2 ]; then
+  echo "too few options"
+  usage
+  exit 1
+fi
+
+kernel=${@:$OPTIND:1}
+squashfs_path=${@:$OPTIND+1:1}
+output_filename=${@:$OPTIND+2:1}
+paths=(${PREFIX}/mkusi/init $squashfs_path)
+mods=(/usr/lib/modules/${kernel}/kernel/{fs/overlayfs/overlay,drivers/block/loop,fs/squashfs/squashfs}.ko.zst)
+mkdir initcpio/mods -p
+cp -- "${paths[@]}" initcpio/
+cp -- "${mods[@]}" initcpio/mods/
+cd initcpio
+find * | bsdcpio -o -H newc -R root: | gzip >init.cpio.gz
+cd ..
+ukify build --linux=/usr/lib/modules/${kernel}/vmlinuz -o $output_filename --cmdline="debug ro" --initrd=initcpio/init.cpio.gz
