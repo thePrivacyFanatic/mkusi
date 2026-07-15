@@ -1,22 +1,49 @@
 # a simple toolkit for creating USIs
-this provides a few tools that can make the creation of unified system images that little bit easier.
+
+This provides a few tools that can make the creation of unified system images
+that little bit easier.
 I created this since mkosi's docummentation is lacking, to say the least.
+
 ## building
+
 ### on arch
-download the PKGBUILD
-run makepkg -si
+
+Download the PKGBUILD
+run ```makepkg -si```
+
 ### everywhere else
-clone the repo
-export the prefix in which you want the static init binary to be stored
+
+Clone the repo
+export the prefix in which you want the static init binary to be stored (e.g /usr/share/)
 run make all
 run make DESTDIR="/" install
+
 ## tools included
+
 ### mksqshroot
-ran in a directory with scripts (in the form that can be seen in the example directory) 
-to create a root filesystem (in an unshare container to provide fake privilege) which is finally compressed into a squashfs
+
+Sets up some directores and executes all programs
+(scripts with execute permission or compiled) as root,
+(either real root or in unshare) before compressing the direactory
+named 'root' into a squashfs
+
+Usage: mksqshroot [-hc] output_filename
+  -c         Cleans the temp directory before running
+
 ### sqroottouki
-ran on a squashfs image and installed kernel version to create a unified system image with it as root
+
+Usage: sqroottouki [-h] kernel squashfs_path output_filename
+
+Creates a unified system image from a kernel and a squashfs root
+
 ### mkusi
-the whole proccess at once
+
+Usage: mkusi [-hc] kernel output_filename
+  -c         Cleans the mksquashroot temp directory before running
+
+Shortcut for the whole process from a hook directory to a USI
+
 ### toimg.sh
-a testing script for VMs that uses mtools to create a disk image from the UKI (not installed by the makefile)
+
+A testing script for VMs that uses mtools to create a disk image from the UKI
+thats's named UKI.efi (not installed by the makefile)

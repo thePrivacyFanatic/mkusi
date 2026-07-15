@@ -6,9 +6,11 @@ clean=false
 
 usage() {
   cat <<USAGE
-Usage: $SCRIPT_NAME [-h] kernel output_filename
-  -h                         Displays this help
-  -c                         cleans the mksquashroot temp directory before running
+Usage: $SCRIPT_NAME [-hc] kernel output_filename
+  -h         Displays this help
+  -c         cleans the mksquashroot temp directory before running
+
+Shortcut for the whole process from a hook directory to a USI
 USAGE
 }
 
