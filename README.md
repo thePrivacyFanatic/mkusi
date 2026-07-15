@@ -47,3 +47,9 @@ Shortcut for the whole process from a hook directory to a USI
 
 A testing script for VMs that uses mtools to create a disk image from the UKI
 thats's named UKI.efi (not installed by the makefile)
+
+## example scripts
+
+Example hooks are currently provided only for alpine linux and gentoo.
+This will hopefully be expanded upon soon, ironically, pacman's use of /proc/
+makes it impossible to run unprivileged sometimes and as such a lower priority
