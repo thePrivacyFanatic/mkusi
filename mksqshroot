@@ -16,6 +16,8 @@ named 'root' into a squashfs
 USAGE
 }
 
+clean=false
+
 while getopts "hc" opt; do
   case $opt in
   c) clean=true ;;
@@ -25,6 +27,7 @@ while getopts "hc" opt; do
     ;;
   esac
 done
+
 if [ $(($# - $OPTIND)) -lt 0 ]; then
   echo "too few arguments"
   usage
@@ -34,8 +37,9 @@ fi
 output_filename=${@:$OPTIND:1}
 
 if [ $UID != 0 ]; then
-  clean=false
-
+  echo "entering unshare"
+  unshare -r "$0" "$output_filename"
+else
   echo "setting up:"
 
   if [ -d "temp" ] && $clean; then
@@ -55,9 +59,6 @@ if [ $UID != 0 ]; then
   echo "creating empty root dir"
   mkdir "root"
 
-  echo "entering unshare"
-  unshare -r "$0" "$output_filename"
-else
   width=$(tput cols 2>/dev/null || echo 80)
 
   for file in *; do
