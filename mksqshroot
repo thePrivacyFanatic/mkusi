@@ -38,7 +38,7 @@ output_filename=${@:$OPTIND:1}
 
 if [ $UID != 0 ]; then
   echo "entering unshare"
-  unshare -r "$0" "$output_filename"
+  unshare -rmpf --mount-proc=/proc "$0" "$output_filename"
 else
   echo "setting up:"
 
